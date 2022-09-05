@@ -1,34 +1,5 @@
 package com.maveric.balances.service;
 
-import com.maveric.balances.dto.BalanceDTO;
-import com.maveric.balances.exception.CreateBalanceException;
-import com.maveric.balances.model.Balance;
-import com.maveric.balances.repository.BalanceRepository;
-import com.maveric.balances.utils.BalanceServiceConstants;
-import com.maveric.balances.utils.Currency;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.*;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-
-import java.util.*;
-
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
-
-@ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
-@SpringBootTest
 public class BalanceServiceTest {
       @Mock
      private BalanceRepository balanceRepository;
@@ -181,4 +152,5 @@ public class BalanceServiceTest {
 
       Assertions.assertTrue(response.getTotalElements() >0);
     }
+
 }

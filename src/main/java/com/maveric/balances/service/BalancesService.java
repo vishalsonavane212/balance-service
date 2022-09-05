@@ -16,9 +16,9 @@ public interface BalancesService {
 
     public  ResponseEntity getBalanceDetailsByBalanceId(String accountId,String balanceId);
 
-    public  ResponseEntity updateBalanceByBalanceIdAndAccountId(BalanceDTO balanceDTO);
+    public  BalanceDTO updateBalanceByBalanceIdAndAccountId(BalanceDTO balanceDTO);
 
-    public  ResponseEntity deleteBalance(String accountId,String balanceId);
+    public  String deleteBalance(String accountId,String balanceId);
 
-    public Page getBalances(String accountId, Pageable pageable);
+    public Page<List<Balance>> getBalances(String accountId, Pageable pageable);
 }
