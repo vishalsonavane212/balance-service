@@ -1,7 +1,6 @@
 package com.maveric.balances.service;
 
 import com.maveric.balances.dto.BalanceDTO;
-import com.maveric.balances.exception.CreateBalanceException;
 import com.maveric.balances.model.Balance;
 import com.maveric.balances.repository.BalanceRepository;
 import com.maveric.balances.utils.BalanceServiceConstants;
@@ -17,6 +16,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.maveric.balances.utils.BalanceServiceConstants.balanceId_is_not_present;
 
 @Service
 public class BalancesServiceImpl implements BalancesService{
@@ -26,41 +28,42 @@ public class BalancesServiceImpl implements BalancesService{
     @Override
     public ResponseEntity createBalance(BalanceDTO balanceDTO) {
         Balance balance =new Balance();
+        ResponseEntity response=new ResponseEntity(HttpStatus.OK);
         try {
             balanceDTO.setCreatedAt(Utils.convertDateToString(Utils.getCurrentDate()));
             balanceDTO.setUpdatedAt(Utils.convertDateToString(Utils.getCurrentDate()));
             balance = mapBalanceDtoToBalance(balanceDTO,balance);
             balance = balanceRepository.save(balance);
-            Optional<Balance> result=balanceRepository.findByBalanceId(balance.getBalanceId());
-            if(result.isPresent()) {
-                return new ResponseEntity(mapBalanceToBalanceDto(result.get()), HttpStatus.CREATED);
+            if(balance != null) {
+                response = new ResponseEntity(mapBalanceToBalanceDto(balance), HttpStatus.CREATED);
             }else {
-                return new ResponseEntity(BalanceServiceConstants.BALANCE_NOT_CREATED,HttpStatus.BAD_REQUEST);
+                response = new ResponseEntity(BalanceServiceConstants.Balance_not_created,HttpStatus.BAD_REQUEST);
             }
         }catch (Exception e){
-            throw new CreateBalanceException(e.getMessage(),e);
+            throw new RuntimeException(e);
         }
+       return  response;
     }
 
     @Override
     public ResponseEntity getBalanceDetailsByBalanceId(String accountId, String balanceId) {
-        try {
-            Optional<Balance> balance = balanceRepository.findByBalanceId(balanceId);
-            if (balance.isPresent()) {
-                return new ResponseEntity(balance.get().getAmount(), HttpStatus.OK);
-            } else {
-                Map<String, String> result = new HashMap();
-                result.put(BalanceServiceConstants.ERROR_CODE, BalanceServiceConstants.BAD_REQUEST);
-                result.put(BalanceServiceConstants.ERROR_MESSAGE, BalanceServiceConstants.BALANCE_ID_IS_NOT_PRESENT);
-                return new ResponseEntity(result, HttpStatus.BAD_REQUEST);
-            }
-        }catch (Exception e){
-            throw new CreateBalanceException(e.getMessage(),e);
+        ResponseEntity response=new ResponseEntity(HttpStatus.OK);
+        //handle null
+        Optional<Balance> balance = balanceRepository.findByBalanceId(balanceId);
+        if(balance.isPresent()) {
+            //return mapBalanceToBalanceDto(balance.get());
+            response =new ResponseEntity(mapBalanceToBalanceDto(balance.get()),HttpStatus.OK);
+        }else {
+            Map<String,String> result=new HashMap<String,String>();
+            result.put(BalanceServiceConstants.error_code,BalanceServiceConstants.BAD_REQUEST);
+            result.put(BalanceServiceConstants.error_message,BalanceServiceConstants.balanceId_is_not_present);
+            response = new ResponseEntity(result,HttpStatus.BAD_REQUEST);
         }
+        return  response;
     }
 
     @Override
-    public ResponseEntity updateBalanceByBalanceIdAndAccountId(BalanceDTO balanceDTO) {
+    public BalanceDTO updateBalanceByBalanceIdAndAccountId(BalanceDTO balanceDTO) {
         BalanceDTO dto=null;
         Balance entity=null;
         try {
@@ -70,35 +73,30 @@ public class BalancesServiceImpl implements BalancesService{
             entity = mapBalanceDtoToBalance(balanceDTO, balance.get());
             Balance updatedData = balanceRepository.save(entity);
             dto = mapBalanceToBalanceDto(updatedData);
-           return new  ResponseEntity(dto,HttpStatus.OK);
         }else {
-                Map<String,String> result=new HashMap();
-                result.put(BalanceServiceConstants.ERROR_CODE,BalanceServiceConstants.BAD_REQUEST);
-                result.put(BalanceServiceConstants.ERROR_MESSAGE,BalanceServiceConstants.BALANCE_ID_NOT_PRESENT);
-                return new  ResponseEntity(result,HttpStatus.BAD_REQUEST);
+                return null;
             }
         }catch (Exception e){
-        throw new CreateBalanceException(e.getMessage(),e);
+
         }
+        return dto;
     }
 
     @Override
-    public ResponseEntity deleteBalance(String accountId, String balanceId) {
+    public String deleteBalance(String accountId, String balanceId) {
         try {
-            Optional<Balance> entity=null;
+            Balance entity=null;
             Optional<Balance> balance = balanceRepository.findByBalanceId(balanceId);
             if (balance.isPresent()) {
-                   balanceRepository.deleteById(balanceId);
-               return new ResponseEntity(BalanceServiceConstants.BALANCE_DELETED_SUCCESSFULLY,HttpStatus.OK);
+                entity = balanceRepository.deleteByBalanceIdAndAccountId(accountId, balanceId);
+                return BalanceServiceConstants.Balance_deleted_successfully;
             } else {
-                Map<String,String> result=new HashMap();
-                result.put(BalanceServiceConstants.ERROR_CODE,BalanceServiceConstants.BAD_REQUEST);
-                result.put(BalanceServiceConstants.ERROR_MESSAGE,BalanceServiceConstants.BALANCE_ID_NOT_PRESENT);
-                return new ResponseEntity(result,HttpStatus.BAD_REQUEST);
+                return BalanceServiceConstants.Balance_not_deleted;
             }
         }catch (Exception e){
-      throw new CreateBalanceException(e.getMessage(),e);
+
         }
+        return "";
     }
 
     @Override
@@ -106,10 +104,12 @@ public class BalancesServiceImpl implements BalancesService{
         Page<List<Balance>> list =null;
         try {
              list = balanceRepository.findByAccountId(accountId, pageable);
+            //List<BalanceDTO> results = list.stream().map(balance -> mapBalanceToBalanceDto(balance)).collect(Collectors.toList());
             return list;
         }catch (Exception e){
-        throw  new CreateBalanceException(e.getMessage(),e);
+
         }
+        return list;
     }
 
     private Balance mapBalanceDtoToBalance(BalanceDTO balanceDTO ,Balance balance){

@@ -1,6 +1,5 @@
 package com.maveric.balances.dto;
 
-import com.maveric.balances.utils.Currency;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,8 +19,9 @@ public class BalanceDTO {
     @NotNull(message = "Please enter amount")
     @Pattern(regexp = "[0-9]+")
     private String amount ;
-    private Currency currency;
-    @NotNull(message = "Please enter amountId")
+    @NotNull(message = "Please enter currency")
+    @NotBlank(message = "Please enter currency")
+    private String currency;
     private  String accountId;
     private String createdAt;
     private String updatedAt;
