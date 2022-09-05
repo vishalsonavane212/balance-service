@@ -1,5 +1,6 @@
 package com.maveric.balances.model;
 
+import com.maveric.balances.utils.Currency;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,7 +17,7 @@ public class Balance {
     @Id
     private  String balanceId;
     private String amount ;
-    private String currency;
+    private Currency currency;
     private  String accountId;
     private String createdAt;
     private String updatedAt;

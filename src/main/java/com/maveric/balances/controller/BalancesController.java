@@ -22,7 +22,7 @@ public class BalancesController {
 
     @GetMapping("/accounts/{accountId}/balances")
     public ResponseEntity getBalances(@PathVariable String accountId, Pageable pageable){
-        Page<List<Balance>> response = iBalancesService.getBalances(accountId,pageable);
+        Page response = iBalancesService.getBalances(accountId,pageable);
         return new ResponseEntity(response,HttpStatus.OK);
 
     }
@@ -42,13 +42,13 @@ public class BalancesController {
     public  ResponseEntity updateBalance(@PathVariable String accountId,
                                          @PathVariable String balanceId,@RequestBody BalanceDTO balanceDTO){
         balanceDTO.setBalanceId(balanceId);
-       BalanceDTO response = iBalancesService.updateBalanceByBalanceIdAndAccountId(balanceDTO);
-       return  new ResponseEntity(response,HttpStatus.OK);
+       ResponseEntity response = iBalancesService.updateBalanceByBalanceIdAndAccountId(balanceDTO);
+       return  new ResponseEntity(response.getBody(),response.getStatusCode());
     }
 
     @DeleteMapping("/accounts/{accountId}/balances/{balanceId}")
     public  ResponseEntity deleteBalance(@PathVariable String accountId, @PathVariable String balanceId){
-        iBalancesService.deleteBalance(accountId,balanceId);
-        return  new ResponseEntity("Balance deleted successfully.",HttpStatus.OK);
+        ResponseEntity response = iBalancesService.deleteBalance(accountId,balanceId);
+        return  new ResponseEntity(response.getBody(),response.getStatusCode());
     }
 }
