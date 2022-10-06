@@ -171,7 +171,7 @@ public class BalanceServiceTest {
         Assertions.assertThrows(CreateBalanceException.class,()->balancesService.deleteBalance(balanceDTO.getAccountId(),balanceDTO.getBalanceId()));
     }
 
-    @Test
+    /*@Test
     public void getBalancesTest(){
         Pageable paging = PageRequest.of(0, 5, Sort.by("inventory"));
         Page<List<Balance>> balancePage= Mockito.mock(Page.class);
@@ -180,5 +180,5 @@ public class BalanceServiceTest {
       Page response  = balancesService.getBalances(balanceDTO.getAccountId(),paging);
 
       Assertions.assertTrue(response.getTotalElements() >0);
-    }
+    }*/
 }
